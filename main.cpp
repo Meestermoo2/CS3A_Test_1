@@ -76,11 +76,6 @@ using namespace std;
 void introduction();
 bool checkCL(int count);
 void getInput(istream& in, expression&a, char *commands[], int count);
-
-
-void let();
-void Eval();
-void print();
 void getFrac(string title, fraction &frac);
 void output(fraction x, fraction y, char op);
 void getTerm(string title, term &t);
@@ -92,44 +87,23 @@ void introduction();
 
 int main(int argc, char *argv[])
 {
-//    introduction();
-//    bool CL = checkCL(argc);
-//    do
-//    {
-//        expression a;
-//        ifstream in;
-
-//        if(CL)
-//        {
-//            //if parameters in command line, we're reading from a file
-//            getInput(in, a, argv, argc);
-//        }
-//        else
-//            //read from terminal
-//            getInput(cin, a, argv, argc);
-
-//    }while(question("Do you want to do this again? "));
-
-
-
-    expression a;
-
-    while(1)
+    introduction();
+    bool CL = checkCL(argc);
+    do
     {
-        cout << "input command: \n";
-        string temp, arg;
-        cin >> temp;
-        cin >> arg;
-        a.choice(temp, arg);
-        std::cout << a << std::endl;
-    }
+        expression a;
+        ifstream in;
 
-//   while (1)
-//   {
-//       polynomial a;
-//       cin >> a;
-//       cout << "\nThis is your polynomial: " << a << std::endl;
-//   }
+        if(CL)
+        {
+            //if parameters in command line, we're reading from a file
+            getInput(in, a, argv, argc);
+        }
+        else
+            //read from terminal
+            getInput(cin, a, argv, argc);
+
+    }while(question("Do you want to do this again? "));
 
     return 0;
 }
@@ -139,7 +113,7 @@ void introduction()
     string border(80, '*');
 
     cout << border << endl;
-    cout << "This Program is called Calculate and it is an polynomial Calculator that that will accept up to 26 algebraic polynomials." << endl;
+    cout << "This Program is called Calculate and it is an polynomial\nCalculator that that will accept up to 26 algebraic polynomials." << endl;
     cout << border << endl;
 }
 
@@ -164,26 +138,81 @@ void getInput(istream& in, expression& a, char *commands[], int count) //express
 {
     ifstream file;
     stringstream ss;
-    string line, filename, EXorRE;
+    string line, filename, EXorRE, userInput;
     polynomial input;
+
 
     //read from terminal, no parameters in command line
     if(&in == &cin)
     {
-        cout << "COMMAND: ";
+        while(1)
+        {
+            //stop when enter is pressed
+            cout << "COMMAND:";
+            getline(cin, userInput);
+            stringstream user_ss;
+            string temp, arg;
 
-        //choice will go in here
+            user_ss >> temp;
 
-        //IT SEEMS WE WILL NEED SOME CONSTRUCT TO STORE AND MODIFY 26 POLYNOMIALS
+            //remove spaces
 
-        //LET will initialize or change a polynomial variable to some polynomial given by the user (F=2X+4)
-        //EVAL will evaluate an already stored polynomial to some value (F(4)=12_
-        //PRINT will display an already stored polynomial (F=2X+4)
+            if (temp.size() > 1)
+            {
+                a.choice(temp, arg);
+                std::cout << a << std::endl;
+            }
 
-        //THE USER MAY ALSO TYPE IN EXPRESSIONs LIKE F=G+H, F=G*H, F=G-H, F=G' or F=G''', this will evaluate and print.
+            if (temp.size() == 1)
+            {
+                char a, b, c, op;
+                int deriv_count(0);
 
-        //LOAD followed by a file name will load up a construct of 26 polynomials
-        //save will save all 26 polynomials into a file, including any changes made in the program.
+                a = temp[0]; // takes initial argument as a
+                user_ss >> op; // takes '=' as junk
+                user_ss >> b; // takes 2nd expression as b
+
+
+                if (user_ss.peek() == '\'')
+                {
+                    while (user_ss.peek() == '\'')
+                    {
+                        deriv_count++;
+                        user_ss >> op;
+
+                    }
+                    cout <<deriv_count<< endl;
+                }
+                else
+                {
+                    user_ss >> op;
+                    user_ss >> c;
+                    cout <<  "a: " << a
+                          << "\nb: " << b
+                         << "\nop: " << op
+                         << "\nc: " << c << endl;
+                }
+            }
+
+            if (temp.size() == 0)
+            {
+                cout << "See ya!" << endl;
+                exit(1);
+            }
+
+
+
+
+            // If
+
+            // If
+            cout << userInput;
+
+//            string temp, arg;
+//            cin >> temp;
+//            cin >> arg;
+
+        }
 
     }
     else
@@ -256,7 +285,6 @@ void getInput(istream& in, expression& a, char *commands[], int count) //express
 //    temp = evaluate(input, p);
 //    cout << "The final value is: "<< temp;
 //    cout << endl;
-
 //}
 
 //void evaluateNthDeriv(string title, polynomial&p)
