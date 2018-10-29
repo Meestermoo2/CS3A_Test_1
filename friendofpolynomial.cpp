@@ -80,11 +80,11 @@ std::ostream& operator<<(std::ostream& out, const polynomial &other)
                 out << "+";
         }
 
-        out<<other[i];
+        if (other[i].getCoeff() != 0)
+            out<<other[i];
     }
     return out;
 }
-
 
 std::istream& operator>>(std::istream& in, polynomial &p)
 {
@@ -106,7 +106,6 @@ std::istream& operator>>(std::istream& in, polynomial &p)
         {
             in >> temp;
             p.addTerm(temp);
-//            std::cout << ": "<< temp << ": " << p <<  std::endl;
         }
         in.clear();
         p.sort();

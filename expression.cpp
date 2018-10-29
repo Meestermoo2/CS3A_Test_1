@@ -1,5 +1,4 @@
 #include "expression.h"
-#include "string.h"
 
 expression::expression()
 { // constructor definition
@@ -13,26 +12,23 @@ expression::expression()
 }
 
 expression::~expression()
-{
+{ // Sets all expressions to zero
     clearLibrary();
 }
 
-polynomial expression::getFunction(int index)
-{
-    std::cout << library[index];
-}
-
-void expression::setFunction(int index)
-{ // set function
-    term temp(0,0);
-    polynomial a(temp);
-    std::cin >> a;
-    library[index] = a;
+void expression::initializeMap()
+{ //Creates a key-value pair
+    commandMap["let"] = LET;
+    commandMap["print"] = PRINT;
+    commandMap["load"] = LOAD;
+    commandMap["save"] = SAVE;
+    commandMap["eval"] = EVAL;
+    commandMap["display"] = DISPLAY;
 }
 
 void expression::choice(const std::string &input,
                         const std::string &argument)
-{
+{ // Maps a given input to our predefined functions
     std:: string temp_str;
 
     for (unsigned int i = 0; i < input.length(); ++i)
@@ -62,107 +58,117 @@ void expression::choice(const std::string &input,
             save(argument);
             break;
 
-//        case DISPLAY:
-//            display();
-//            break;
+        case DISPLAY:
+            display();
+            break;
 
         default:
-            exit(1); // replace with throw error
+            exit(1); // replace with throw error?
     }
 }
 
-void expression::load(std::string arg)
+void expression::nthDerivative(const int index, const int source, int n)
 {
-    using namespace std;
-    ofstream out;
-    ifstream in;
+    while (n > 0){
+        library[index] = firstDerivative(library[source]);
+        n--;
+    }
+}
 
-    char ans;
-    //open with arg name, check to overwrite
-    if(arg.find('.') > arg.size())
-      arg += ".exp";
-    in.open(arg);
+void expression::add(const int index, const int arg1, const int arg2)
+{
+    library[index] = library[arg1] + library[arg2];
+}
+void expression::subtract(const int index, const int arg1, const int arg2)
+{
+    library[index] = library[arg1] - library[arg2];
+}
+void expression::multiply(const int index, const int arg1, const int arg2)
+{
+    library[index] = library[arg1] * library[arg2];
+}
+
+void expression::load(const std::string &arg)
+{ // Loads preconfigured library of expression to current working library
+    std::ofstream out;
+    std::ifstream in;
+    std::string filename = arg;
+
+    // Open with arg name, check to overwrite
+    if(filename.find('.') > filename.size())
+      filename+= ".exp";
+    in.open(filename);
     if((in.fail()))
     {
-        cout << "The input file does not exist" << endl;
-        exit(1);
+        std::cout << "The input file does not exist!" << std::endl;
     }
-
-    in >> *this;
-    std::cout << "Load succesful." << std::endl;
-}
-
-void expression::save(std::string arg){
-    using namespace std;
-    ofstream out;
-    ifstream in;
-
-    char ans;
-    //open with arg name, check to overwrite
-    if(arg.find('.') > arg.size())
-      arg += ".exp";
-    in.open(arg);
-    in.close();
-    if(in.fail())
-     out.open(arg);
     else
     {
-      in.clear();
-      cout<<"That file exists!!"<<endl;
-      cout<<"Do you wish to overwrite it" << endl;
-      cin >> ans;
-      if(ans == 'Y' || ans == 'y')
-          out.open(arg);
-      else
-      {
-          cout << "You chose not to overwrite" << endl;
-          return;
-      }
+        in >> *this;
+        std::cout << "Load successful." << std::endl;
     }
 
-    //write to file
-    out << *this;
-    std::cout << "Save succesful." <<std::endl;
+
 }
 
-void expression::initializeMap()
-{
-    commandMap["let"] = LET;
-    commandMap["print"] = PRINT;
-    commandMap["load"] = LOAD;
-    commandMap["save"] = SAVE;
-    commandMap["eval"] = EVAL;
-    commandMap["display"] = DISPLAY;
-    // add display
+void expression::save(std::string arg)
+{ // Saves current expression library to file while checking for existing file
+    std::ofstream out;
+    std::ifstream in;
+    std::string filename = arg;
+
+    char ans;
+    if(filename.find('.') > filename.size())
+        filename += ".exp";
+    in.open(filename);
+    in.close();
+    if(in.fail())
+        out.open(filename);
+    else
+    {
+        in.clear();
+        std::cout<<"That file exists!!"<< std::endl;
+        std::cout<<"Do you wish to overwrite it?" << std::endl;
+        std::cin >> ans;
+        if(ans == 'Y' || ans == 'y')
+            out.open(filename);
+        else
+        {
+            std::cout << "You chose not to overwrite." << std::endl;
+//          return;
+        }
+    }
+
+    out << *this; // Writes to file
+    std::cout << "Save successful." << std::endl;
 }
 
 void expression::let(const std::string &arg)
-{
+{ // Configures an given expression derived from arg to a poly, also derived
+  // from arg. E.g. "F=3X^3" etc.
     std::stringstream temp;
+    char index; // Holds first char to be used as index
+    char junk; // Will hold '='
+
     temp << arg;
-    char index;
-    char junk;
     temp >> index >> junk;
     index = toupper(index);
     term a(0,0);
     polynomial b(a);
-    library[int(index-65)] = b;
-    temp >> library[int(index-65)];
+    library[index-65] = b; // Sets the destination expression to zero before insertion
+    temp >> library[index-65];
 
+    // Displays a successful configuration
+    std::cout << std::endl << index << " = "
+              << library[int(index-65)] << std::endl;
 }
 void expression::print(const std::string &arg) {
     // if arg is greater than one char, need to throw error
     std::cout << arg[0] << " = " << library[toupper(arg[0])-65] << std::endl;
 }
 
-//    //open object with arg name
-//
-//    ostream output;
-//
-//    std::ostream << library[2];
-
 void expression::clearLibrary()
-{
+{ // Clears library by setting all expressions to 0.
     for (unsigned int i = 0; i < 26; ++i)
     {
         term a(0,0);
@@ -171,16 +177,18 @@ void expression::clearLibrary()
     }
 }
 
-//void expression::display()
-//{
-//    for(unsigned int i = 0; i < 26; ++i)
-//    {
-//        std::cout<< char(i+65) << "=" << library[i] <<"\n";
-//    }
-//}
+void expression::display()
+{ // Display the current library of expressions
+    std::cout << std::endl;
+    for(unsigned int i = 0; i < 26; ++i)
+    {
+        std::cout<< (char)(i+65) << " = " << library[i] <<"\n";
+    }
+    std::cout << std::endl;
+}
 
 void expression::eval(const std::string &arg)
-{
+{ // Evaluates a given expression with the value;
     std::stringstream ss;
     fraction temp_frac;
     char index, junk;
@@ -192,8 +200,8 @@ void expression::eval(const std::string &arg)
     ss >> temp_frac;
     ss >> junk;
 
-    std::cout << index << '(' << temp_frac << ')'
-              << '=' << evaluate(temp_frac, library[int(index-65)])
+    std::cout << std::endl << index // Used for display purposes
+              << '(' << temp_frac << ')' << " = "
+              << evaluate(temp_frac, library[index-65])
               << std::endl;
-
 }

@@ -130,10 +130,10 @@ std::istream& operator>>(std::istream& in, term& t)
         if(in>>t.coeff)
         {
             if(in.peek() == 'X' || in.peek() == 'x')
-               in>>t.variable>>junk>>t.power;
+                in>>t.variable>>junk>>t.power;
         }
-        else
-            std::cout<<"Hit End of File"<<std::endl;
+//        else
+//            std::cout<<"Hit End of File"<<std::endl;
     }
     return in;
 }
